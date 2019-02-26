@@ -127,5 +127,11 @@ string PA1::decodeBits(vector<bool> bits, unordered_map<char, string> huffmanMap
 vector<bool> PA1::toBinary(vector<string> text, unordered_map<char, string> huffmanMap)
 {
     vector<bool> result{};
+
+	//after you have the tree, walk down the tree until you see a leaf node
+	
+	//if leaf node:
+
+
     return result;
 }
