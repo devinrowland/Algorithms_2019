@@ -125,8 +125,6 @@ int calculateEditDistance(const string& first, const string& second)
 
          int best_choice = min(top_cost, min(left_cost, diagonal_cost));
 
-         
-
          //store result in current cell
          matrix[i][j] = best_choice;
       }
@@ -138,10 +136,26 @@ int calculateEditDistance(const string& first, const string& second)
 vector<string> calculateBestOption(unordered_map<string, int> dictionary, string inputted)
 {
 	vector<string> best_options;
-	best_options.push_back("None of the words below are correct.");
 	unordered_map<int, vector<string>> edit_distances{};
 	int best_int;
-
+	string file_name;
+	string file_line;
+		
+	file_name = inputted + ".dat";
+	ifstream myfile(file_name.c_str());
+	
+	if (myfile.is_open())
+	{
+		while (getline(myfile, file_line))
+		{
+			best_options.push_back(file_line);
+		}
+		myfile.close();
+		return best_options;
+	}
+	else
+	{
+		best_options.push_back("None of the words below are correct.");
 		for (auto word : dictionary)
 		{
 			best_int = calculateEditDistance(word.first, inputted);
@@ -150,7 +164,7 @@ vector<string> calculateBestOption(unordered_map<string, int> dictionary, string
 
 		int counter = 1;
 		for (int i = 1; i < 100; i++)
-		{ 
+		{
 			for (int j = 1; j <= edit_distances[i].size(); j++)
 			{
 				if (best_options.size() < 10)
@@ -161,7 +175,8 @@ vector<string> calculateBestOption(unordered_map<string, int> dictionary, string
 				}
 			}
 		}
-	return best_options;
+		return best_options;
+	}
 }
 
 
@@ -220,19 +235,72 @@ int main(void)
 					cout << number_list << ". "<< x << endl;
 				}
 
+
 				int choice;
 				cout << "Enter correct word by corresponding number: ";
 				cin >> choice;
+				cout << endl;
+
 				if (choice == 1)
 				{
 					string correct;
 					cout << "Enter correct word: ";
 					cin >> correct;
+					cout << endl;
 					corrected.push_back(correct);
+					
+					ofstream myfile;
+					myfile.open(bad_text[i] + ".dat");
+
+					for (int i = 0; i <= best_list.size() - 1; i++)
+					{
+						if (i == 1)
+						{
+							myfile << correct << endl;
+							if (correct != best_list[i])
+							{
+								myfile << best_list[i] << endl;
+							}
+						}
+						else
+						{
+							if (correct != best_list[i])
+							{
+								myfile << best_list[i] << endl;
+							}
+						}
+					}
+
+					myfile.close();
+
 				}
 				else
 				{
 					corrected.push_back(best_list[choice - 1]);
+
+					ofstream myfile;
+					myfile.open(bad_text[i] + ".dat");
+
+					for (int i = 0; i <= best_list.size() - 1; i++)
+					{
+						if (i == 1)
+						{
+							myfile << best_list[choice-1] << endl;
+							if (best_list[i] != best_list[choice - 1])
+							{
+								myfile << best_list[i] << endl;
+							}
+						}
+						else
+						{
+							if (best_list[i] != best_list[choice - 1])
+							{
+								myfile << best_list[i] << endl;
+							}
+						}
+					}
+
+					myfile.close();
 				}
 
 			}
@@ -244,6 +312,7 @@ int main(void)
 		}
 	}
 	
+	//Read out to outputted file
 	ofstream myfile;
 	myfile.open(dest_file);
 
@@ -258,5 +327,7 @@ int main(void)
 			myfile << " " << corrected[i];
 		}
 	}
+
+	myfile.close();
     return 0;
 } 

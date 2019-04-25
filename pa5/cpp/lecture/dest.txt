@@ -1,1 +1,2 @@
- this is a simple test.
+ the horse eats carrots, 
+ and the dog barks at the moon!
