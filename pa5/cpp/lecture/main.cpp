@@ -62,11 +62,15 @@ vector<string> parseGivenText(string fix_file)
 					{
 						fixing_file.push_back("!");
 					}
+					if (line[counter - 3] == '?')
+					{
+						fixing_file.push_back("?");
+					}
 				}
 				else
 				{
 					//Push the next character onto the word string
-					if (x != ',' && x != '.' && x != '!')
+					if (x != ',' && x != '.' && x != '!' && x != '?')
 					{
 						word = word + x;
 					}
@@ -133,10 +137,10 @@ int calculateEditDistance(const string& first, const string& second)
 
 vector<string> calculateBestOption(unordered_map<string, int> dictionary, string inputted)
 {
-	vector<string> best_options{};
+	vector<string> best_options;
 	unordered_map<int, vector<string>> edit_distances{};
 	int best_int;
-	best_options[0] = "1. None of the words below are correct.";
+	best_options.push_back("1. None of the words below are correct.");
 
 		for (auto word : dictionary)
 		{
@@ -144,18 +148,16 @@ vector<string> calculateBestOption(unordered_map<string, int> dictionary, string
 			edit_distances[best_int].push_back(word.first);
 		}
 
-		int counter = 0;
-		for (auto value : edit_distances)
-		{
-			counter++;
-			int fixed_string_list = 0;
-
-			for (int i = 0; i < value.second.size(); i++)
+		int counter = 1;
+		for (int i = 1; i < 100; i++)
+		{ 
+			for (int j = 1; j <= edit_distances[i].size(); j++)
 			{
-				if(best_options.size() < 11)
+				if (best_options.size() < 10)
 				{
-					fixed_string_list++;
-					best_options[fixed_string_list] = ((fixed_string_list+1) + ". " + value.second[fixed_string_list-1]);
+					counter++;
+					string result = (to_string(counter) + ". " + (edit_distances[i][j - 1]));
+					best_options.push_back(result);
 				}
 			}
 		}
@@ -183,7 +185,10 @@ int main(void)
 
 	//Get parsed inputted strings
 	vector<string> bad_text;
-	bad_text = parseGivenText("sample1.txt");
+	bad_text = parseGivenText("sample2.txt");
+
+	//This vector holds the corrected string
+	vector<string> corrected;
 
 	//Compare inputted strings to the dictionary
 
@@ -196,22 +201,44 @@ int main(void)
 	{
 		vector<string> best_list{};
 
-		cout << "Working" << endl;
 		if (dictionary.find(bad_text[i]) == dictionary.end())
 		{
 			//if word isnt in dictionary
-
-			cout << bad_text[i];
-			best_list = calculateBestOption(dictionary, bad_text[i]);
-
-			cout << "Unknown word: " << bad_text[i] << endl;
-			cout << "Corrected word: " << endl;
-
-			for (auto x : best_list)
+			if (bad_text[i] == "," || bad_text[i] == "." || bad_text[i] == "!" || bad_text[i] == "?" || bad_text[i] == "/n")
 			{
-				cout << x << endl;
+				corrected.push_back(bad_text[i]);
+			}
+			else
+			{
+				best_list = calculateBestOption(dictionary, bad_text[i]);
+
+				cout << "Unknown word: " << bad_text[i] << endl;
+				cout << "Corrected word: " << endl;
+
+				for (auto x : best_list)
+				{
+					cout << x << endl;
+				}
+
+				int choice;
+				cout << "Enter correct word by corresponding number: ";
+				cin >> choice;
+
+				corrected.push_back(best_list[choice-1]);
+
 			}
 		}
+		else
+		{
+			//Add correct word into corrected vector
+
+			corrected.push_back(bad_text[i]);
+		}
+	}
+
+	for (int i = 0; i <= corrected.size(); i++)
+	{
+		cout << corrected[i] << " ";
 	}
     return 0;
 } 
