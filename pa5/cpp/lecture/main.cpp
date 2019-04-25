@@ -76,7 +76,7 @@ vector<string> parseGivenText(string fix_file)
 					}
 				}
 			}
-			fixing_file.push_back("/n");
+			fixing_file.push_back("\n");
 		}
 		myfile.close();
 		fixing_file.pop_back();
@@ -138,9 +138,9 @@ int calculateEditDistance(const string& first, const string& second)
 vector<string> calculateBestOption(unordered_map<string, int> dictionary, string inputted)
 {
 	vector<string> best_options;
+	best_options.push_back("None of the words below are correct.");
 	unordered_map<int, vector<string>> edit_distances{};
 	int best_int;
-	best_options.push_back("1. None of the words below are correct.");
 
 		for (auto word : dictionary)
 		{
@@ -156,7 +156,7 @@ vector<string> calculateBestOption(unordered_map<string, int> dictionary, string
 				if (best_options.size() < 10)
 				{
 					counter++;
-					string result = (to_string(counter) + ". " + (edit_distances[i][j - 1]));
+					string result = (edit_distances[i][j - 1]);
 					best_options.push_back(result);
 				}
 			}
@@ -172,12 +172,10 @@ int main(void)
 	string first_file;
 	string dest_file;
 
-	/*
 	cout << "Input a file you want corrected: ";
 	cin >> first_file;
 	cout << "Input destination file: ";
 	cin >> dest_file;
-	*/
 
 	//Set dictionary
 	unordered_map<string, int> dictionary;
@@ -185,7 +183,7 @@ int main(void)
 
 	//Get parsed inputted strings
 	vector<string> bad_text;
-	bad_text = parseGivenText("sample2.txt");
+	bad_text = parseGivenText(first_file);
 
 	//This vector holds the corrected string
 	vector<string> corrected;
@@ -204,7 +202,7 @@ int main(void)
 		if (dictionary.find(bad_text[i]) == dictionary.end())
 		{
 			//if word isnt in dictionary
-			if (bad_text[i] == "," || bad_text[i] == "." || bad_text[i] == "!" || bad_text[i] == "?" || bad_text[i] == "/n")
+			if (bad_text[i] == "," || bad_text[i] == "." || bad_text[i] == "!" || bad_text[i] == "?" || bad_text[i] == "\n")
 			{
 				corrected.push_back(bad_text[i]);
 			}
@@ -215,30 +213,50 @@ int main(void)
 				cout << "Unknown word: " << bad_text[i] << endl;
 				cout << "Corrected word: " << endl;
 
+				int number_list = 0;
 				for (auto x : best_list)
 				{
-					cout << x << endl;
+					number_list++;
+					cout << number_list << ". "<< x << endl;
 				}
 
 				int choice;
 				cout << "Enter correct word by corresponding number: ";
 				cin >> choice;
-
-				corrected.push_back(best_list[choice-1]);
+				if (choice == 1)
+				{
+					string correct;
+					cout << "Enter correct word: ";
+					cin >> correct;
+					corrected.push_back(correct);
+				}
+				else
+				{
+					corrected.push_back(best_list[choice - 1]);
+				}
 
 			}
 		}
 		else
 		{
 			//Add correct word into corrected vector
-
 			corrected.push_back(bad_text[i]);
 		}
 	}
+	
+	ofstream myfile;
+	myfile.open(dest_file);
 
-	for (int i = 0; i <= corrected.size(); i++)
+	for (int i = 0; i <= corrected.size()-1; i++)
 	{
-		cout << corrected[i] << " ";
+		if (corrected[i] == "," || corrected[i] == "." || corrected[i] == "!" || corrected[i] == "?")
+		{
+			myfile << corrected[i];
+		}
+		else
+		{
+			myfile << " " << corrected[i];
+		}
 	}
     return 0;
 } 
