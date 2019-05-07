@@ -213,10 +213,6 @@ unordered_map<char, string> PA1::readEncodingMapFromFile(string file_name)
 			inputFile.close();
 		}
 	}
-
-
-
-
 	return result;
 }
 
@@ -227,26 +223,43 @@ string PA1::decodeBits(vector<bool> bits, unordered_map<char, string> huffmanMap
 	//To solve this problem, I converted the Huffman Map into a Huffman Tree and used 
 	//tree traversals to convert the bits back into text
 	// call build tree from map
+	int place = 0;
 	ostringstream result{};
-	HuffmanTree<char>* tree;
-
-	tree = huffmanTreeFromMap(huffmanMap);
-	/*
-	for (auto path : bits)
+	HuffmanTree<char>* root = huffmanTreeFromMap(huffmanMap);;
+	HuffmanInternalNode<char>* intNode = dynamic_cast<HuffmanInternalNode<char>*>(root->getRoot());
+	HuffmanLeafNode<char>* leaf = dynamic_cast<HuffmanLeafNode<char>*>(root->getRoot());
+	
+	while (place != bits.size())
 	{
-		if (path == false)
+		if (bits[place] == 0)
 		{
-			// go left
+			if(intNode->getLeftChild()->isLeaf() == true)
+			{
+				leaf = dynamic_cast<HuffmanLeafNode<char>*>(intNode->getLeftChild());
+				result << leaf->getValue();
+				intNode = dynamic_cast<HuffmanInternalNode<char>*>(root->getRoot());
+			}
+			else
+			{
+				intNode = dynamic_cast<HuffmanInternalNode<char>*>(intNode->getLeftChild());
+			}
+			place++;
 		}
 		else
 		{
-			// go right
+			if (intNode->getRightChild()->isLeaf() == true)
+			{
+				leaf = dynamic_cast<HuffmanLeafNode<char>*>(intNode->getRightChild());
+				result << leaf->getValue();
+				intNode = dynamic_cast<HuffmanInternalNode<char>*>(root->getRoot());
+			}
+			else
+			{
+				intNode = dynamic_cast<HuffmanInternalNode<char>*>(intNode->getRightChild());
+			}
+			place++;
 		}
 	}
-	*/
-
-
-
 	return result.str();
 }
 
