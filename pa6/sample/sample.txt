@@ -1,3 +1,0 @@
-This is a sample text file.
-
-It has 3 lines, one of which is empty.
