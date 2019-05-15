@@ -13,11 +13,11 @@ int main(void)
 	string map_num;
 	string deliv_num;
 
-	//cout << "*** Route Planner ***" << endl;
-	//cout << "Enter maps file: ";
-	//cin >> map_num;
-	//cout << "Enter destinations file: ";
-	//cin >> deliv_num;
+	cout << "*** Route Planner ***" << endl;
+	cout << "Enter maps file: ";
+	cin >> map_num;
+	cout << "Enter destinations file: ";
+	cin >> deliv_num;
 
 	//Putting the map file into a 2D vector
 	CsvStateMachine mapping{ "map1.txt" };
@@ -30,64 +30,115 @@ int main(void)
 	//CityGraph that all vertexs and connections will be registered
 	CityGraph graph{};
 
-	//Create a unordred map to get all vertexs to put in the city graph
-	unordered_map<string, int> vertexs{};
-	
-	// Adds vertexs before they all get connected
-	// Goes through first row while checking to see if the number is already in the graph
-	int i = 0;
-	int j = 0;
-
-	/*
+	// build map from txt 
+	vector<string> Path;
 	for (int i = 0; i < map_vector.size(); i++)
 	{
-		for (int j = 0; j <= 1; j++)
+		Path = map_vector[i];
+		graph.addVertex(Path[0]);
+		graph.addVertex(Path[1]);
+	}
+
+	//Now that we have all the vertexs, this will connect them all together
+	for (int i = 0; i < map_vector.size(); i++)
+	{
+		Path = map_vector[i];
+		graph.connectVertex(Path[0], Path[1], stoi(Path[2]), true);
+	}
+
+	//Vector that holds the routes
+	vector<string> start = dest_vector[0];
+
+	//Makes graph and runs the tree function to find routes
+	CityGraph MinimumSpanningCityGraph = graph;
+	auto route = MinimumSpanningCityGraph.computeMinimumSpanningTree(start[0]);
+
+	//Helps go through all the routes to find the weights of the routes
+	Edge current;
+	int time = 0;
+
+	//Loops through and adds the weights
+	for (int i = 0; i < route.size(); i++)
+	{
+		current = route[i];
+		time += current.weight;
+	}
+
+	//Outputs for teir one
+	cout << "Total travel time: " << time << " minutes" << endl;
+
+
+	//Tier2
+
+	unordered_map<string, int> distances{};
+	CityGraph Graph2{};
+	string starts;
+	int weight;
+	vector<string> deliv;
+
+
+	
+	for (int i = 0; i < dest_vector.size(); i++)
+	{
+		vector<string> current = dest_vector[i];
+		deliv.push_back(current[0]);
+		Graph2.addVertex(current[0]);
+
+		//Calculates shortest route from the current location
+		distances = graph.computeShortestPath(current[0]);
+		for (auto cur : distances)
 		{
-			if (vertexs.find(map_vector[i][j]) == vertexs.end())
+			for (int i = 0; i < deliv.size(); i++)
 			{
-				graph.addVertex(map_vector[i][j]);
+				// Not itself and is in the set deliveries file
+				if (cur.first != current[0] && cur.first == deliv.at(i))
+				{
+					//Builds the new graph
+					weight = cur.second;
+					Graph2.connectVertex(current[0], deliv.at(i), weight, true);
+					if (i == 0)
+					{
+						starts = current[0];
+					}
+
+				}
 			}
 		}
 	}
-	*/
+	//Variables to calculate route time
+	time = 0;
+	auto routes = Graph2.computeMinimumSpanningTree(deliv.at(0));
+	Edge routeweight;
 
-	//Add vertexs only in the deliveries
-	for (i = 0; i < dest_vector.size(); i++)
+	//Adds the weights together.
+	for (int i = 0; i < routes.size(); i++)
 	{
-		if (vertexs.find(dest_vector[i][0]) == vertexs.end())
-		{
-			graph.addVertex(dest_vector[i][0]);
-		}
+		routeweight = routes[i];
+		time = time + routeweight.weight;
 	}
 
-	i = 0;
+	cout << "Total travel time: " << time << " minutes" << endl;
 
-	//Connect all the vertexs
-	while (i < map_vector.size())
+	//teir3
+	vector<string> routed;
+	string currents = "";
+	string next = "";
+
+	// loads route into a vector
+	auto path = Graph2.computeShortestPath(starts);
+
+	for (auto curr : path)
 	{
-		int num = 0;
-		string character;
-
-		if (vertexs.find(map_vector[i][j]) == vertexs.end() && vertexs.find(map_vector[i][j + 1]) == vertexs.end())
-		{
-			character = map_vector[i][2];
-			num = stoi(character);
-			graph.connectVertex(map_vector[i][0], map_vector[i][1], num);
-		}
-		i++;
+		routed.push_back(curr.first);
 	}
 
-	// After the first row is done, go through the secondst 
+	for (int x = 0; x < routed.size() - 1; x++)
+	{
+		currents = routed.at(x);
+		next = routed.at(x + 1);
+		cout << currents << " -> " << next << endl;
+	}
+
 	
-	auto distances = graph.computeShortestPath(dest_vector[0][0]);
-	auto mst = graph.computeMinimumSpanningTree(dest_vector[0][0]);
-	
-	int total_distance = 0;
-	//Now we are going to travel through the deliveries text file
-	for (i = 0; i < dest_vector.size(); i++)
-	{
-		total_distance += mst
-	}
-
 	return 0;
 }
